@@ -155,7 +155,28 @@ export async function generateStory(
     { role: 'user' as const, content: `Setting: ${setting}${extra}\n\nWrite the complete sleep story now — title first, then all paragraphs through to a gentle, finished ending.` },
   ];
 
-  // ── Primary: Groq llama-3.3-70b ──────────────────────────────────────────
+  // ── Primary: OpenRouter / Gemini ─────────────────────────────────────────
+  if (openRouter) {
+    try {
+      const orStream = await openRouter.chat.send({
+        httpReferer: 'https://slumbr.app',
+        appTitle: 'Slumbr',
+        chatRequest: {
+          model: env.FALLBACK_MODEL ?? 'google/gemini-2.0-flash-001',
+          messages,
+          stream: true as const,
+          maxTokens: 3500,
+          temperature: 0.8,
+        },
+      });
+      return { stream: await streamFromIterable(orStream), provider: 'openrouter' };
+    } catch (err) {
+      if (!isRateLimit(err)) throw err;
+      console.warn('[story] OpenRouter rate-limited — trying Groq');
+    }
+  }
+
+  // ── Fallback 1: Groq llama-3.3-70b ───────────────────────────────────────
   try {
     const stream = await groq.chat.completions.create({
       model: 'llama-3.3-70b-versatile',
@@ -170,33 +191,13 @@ export async function generateStory(
     console.warn('[story] Groq primary rate-limited — trying Groq fallback model');
   }
 
-  // ── Fallback 1: Groq smaller model (separate rate-limit bucket) ──────────
-  try {
-    const stream = await groq.chat.completions.create({
-      model: 'llama-3.1-8b-instant',
-      messages,
-      stream: true,
-      max_tokens: 3500,
-      temperature: 0.8,
-    });
-    return { stream: await streamFromIterable(stream), provider: 'groq-fallback' };
-  } catch (err) {
-    if (!isRateLimit(err) || !openRouter) throw err;
-    console.warn('[story] Groq rate-limited — trying OpenRouter');
-  }
-
-  // ── Fallback 2: OpenRouter (qwen3.6-plus or configured model) ────────────
-  if (!openRouter) throw new Error('All providers rate-limited and no OpenRouter key configured');
-  const orStream = await openRouter.chat.send({
-    httpReferer: 'https://slumbr.app',
-    appTitle: 'Slumbr',
-    chatRequest: {
-      model: env.FALLBACK_MODEL ?? 'google/gemini-2.0-flash-001',
-      messages,
-      stream: true as const,
-      maxTokens: 3500,
-      temperature: 0.8,
-    },
+  // ── Fallback 2: Groq smaller model ───────────────────────────────────────
+  const stream = await groq.chat.completions.create({
+    model: 'llama-3.1-8b-instant',
+    messages,
+    stream: true,
+    max_tokens: 3500,
+    temperature: 0.8,
   });
-  return { stream: await streamFromIterable(orStream), provider: 'openrouter' };
+  return { stream: await streamFromIterable(stream), provider: 'groq-fallback' };
 }

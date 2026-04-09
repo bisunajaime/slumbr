@@ -9,9 +9,9 @@ import { useSaveSession } from '../../hooks/useSaveSession';
 import { bionicEncode } from '../../utils/bionicEncode';
 
 const PROVIDER_LABELS: Record<string, string> = {
-  groq:          'Groq · Llama 3.3 70b',
+  openrouter:      'Google · Gemini 2.0 Flash',
+  groq:            'Groq · Llama 3.3 70b',
   'groq-fallback': 'Groq · Llama 3.1 8b',
-  openrouter:    'Google · Gemini 2.0 Flash',
 };
 
 const FONT_SIZE_MAP = {
