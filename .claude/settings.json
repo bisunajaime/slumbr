@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(node:*)",
+      "Bash(git:*)",
+      "Bash(prisma:*)",
+      "Bash(tsc:*)",
+      "Bash(vite:*)",
+      "Bash(eslint:*)",
+      "Bash(prettier:*)"
+    ]
+  }
+}

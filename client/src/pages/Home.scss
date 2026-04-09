@@ -1,0 +1,339 @@
+@use '../styles/mixins' as mix;
+
+.home {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-8);
+  padding: var(--space-12) var(--space-6) var(--space-16);
+  min-height: 100dvh;
+
+  @include mix.tablet {
+    padding: var(--space-16) var(--space-8);
+  }
+
+  &__header {
+    text-align: center;
+    @include mix.fade-in;
+  }
+
+  &__wordmark {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 10vw, 4rem);
+    font-weight: 300;
+    letter-spacing: 0.12em;
+    color: var(--color-text-primary);
+    line-height: 1;
+  }
+
+  &__tagline {
+    margin-top: var(--space-2);
+    font-family: var(--font-ui);
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  &__pov {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    @include mix.fade-in(var(--duration-medium));
+
+    @include mix.tablet {
+      max-width: 560px;
+    }
+  }
+
+  &__pov-label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    font-family: var(--font-ui);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    padding-left: var(--space-1);
+  }
+
+  &__pov-override-note {
+    font-size: 0.65rem;
+    font-weight: 400;
+    letter-spacing: 0.03em;
+    text-transform: none;
+    color: var(--color-accent-amber);
+    font-style: italic;
+  }
+
+  // When character mode is on, the perspective cards are visually inactive
+  &__pov.is-overridden &__pov-grid {
+    opacity: 0.35;
+    pointer-events: none;
+  }
+
+  &__pov-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-2);
+  }
+
+  &__pov-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
+    padding: var(--space-3) var(--space-3);
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    text-align: left;
+    transition:
+      background-color var(--duration-fast) var(--ease-breathe),
+      border-color var(--duration-fast) var(--ease-breathe),
+      box-shadow var(--duration-fast) var(--ease-breathe);
+
+    &:hover {
+      background-color: var(--color-bg-elevated);
+      border-color: rgba(196, 97, 26, 0.35);
+    }
+
+    &.is-active {
+      background-color: var(--color-bg-elevated);
+      border-color: var(--color-accent-amber);
+      box-shadow: var(--shadow-glow-sm);
+    }
+  }
+
+  &__pov-card-label {
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-text-muted);
+    transition: color var(--duration-fast) var(--ease-breathe);
+
+    .is-active & {
+      color: var(--color-text-primary);
+    }
+  }
+
+  &__pov-card-desc {
+    font-family: var(--font-ui);
+    font-size: 0.65rem;
+    letter-spacing: 0.03em;
+    color: var(--color-text-dim);
+    transition: color var(--duration-fast) var(--ease-breathe);
+
+    .is-active & {
+      color: var(--color-text-muted);
+    }
+  }
+
+  &__pov-card-example {
+    margin-top: var(--space-1);
+    font-family: var(--font-display);
+    font-size: 0.75rem;
+    font-style: italic;
+    font-weight: 300;
+    color: var(--color-text-dim);
+    line-height: 1.4;
+    transition: color var(--duration-fast) var(--ease-breathe);
+
+    .is-active & {
+      color: var(--color-accent-amber);
+    }
+  }
+
+  &__extras {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    @include mix.fade-in(var(--duration-medium));
+
+    @include mix.tablet {
+      max-width: 560px;
+    }
+  }
+
+  &__extras-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+  }
+
+  &__extras-label {
+    font-family: var(--font-ui);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+    width: 4.5rem; // fixed width keeps toggles aligned across rows
+  }
+
+  &__extras-toggle {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-4);
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-full);
+    font-family: var(--font-ui);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+    color: var(--color-text-dim);
+    transition:
+      color            var(--duration-fast) var(--ease-breathe),
+      border-color     var(--duration-fast) var(--ease-breathe),
+      background-color var(--duration-fast) var(--ease-breathe);
+
+    &:hover:not(:disabled) {
+      color: var(--color-text-muted);
+      border-color: rgba(196, 97, 26, 0.35);
+    }
+
+    &.is-active {
+      color: var(--color-accent-amber);
+      border-color: var(--color-accent-amber);
+      background-color: rgba(196, 97, 26, 0.08);
+    }
+
+    &:disabled {
+      opacity: 0.3;
+      cursor: not-allowed;
+    }
+  }
+
+  &__extras-toggle-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: var(--color-border);
+    flex-shrink: 0;
+    transition: background-color var(--duration-fast) var(--ease-breathe);
+
+    .is-active & {
+      background-color: var(--color-accent-amber);
+    }
+  }
+
+  &__extras-hint {
+    font-family: var(--font-ui);
+    font-size: 0.65rem;
+    letter-spacing: 0.03em;
+    color: var(--color-text-dim);
+    font-style: italic;
+    animation: fadeIn var(--duration-fast) var(--ease-breathe);
+
+    &--amber {
+      color: rgba(196, 97, 26, 0.7);
+    }
+  }
+
+  &__prompt {
+    width: 100%;
+    max-width: 480px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    @include mix.fade-in(var(--duration-medium));
+
+    @include mix.tablet {
+      max-width: 560px;
+    }
+  }
+
+  &__prompt-label {
+    font-family: var(--font-ui);
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+    padding-left: var(--space-1);
+
+    span {
+      color: var(--color-text-dim);
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+    }
+  }
+
+  &__prompt-field {
+    position: relative;
+  }
+
+  &__prompt-input {
+    width: 100%;
+    background-color: var(--color-bg-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    color: var(--color-text-primary);
+    font-family: var(--font-ui);
+    font-size: 0.9rem;
+    line-height: 1.6;
+    padding: var(--space-4);
+    resize: none;
+    outline: none;
+    transition: border-color var(--duration-fast) var(--ease-breathe);
+
+    &::placeholder {
+      color: var(--color-text-dim);
+      transition: opacity 0.35s var(--ease-breathe);
+    }
+
+    &[data-placeholder-visible="false"]::placeholder {
+      opacity: 0;
+    }
+
+    &:focus {
+      border-color: rgba(196, 97, 26, 0.5);
+    }
+  }
+
+  &__generate {
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 300;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--color-text-dim);
+    padding: var(--space-4) var(--space-12);
+    border: 1px solid rgba(196, 97, 26, 0.15);
+    border-radius: var(--radius-full);
+    transition: all var(--duration-medium) var(--ease-breathe);
+
+    &.is-ready {
+      color: var(--color-text-primary);
+      border-color: var(--color-accent-amber);
+      box-shadow: var(--shadow-glow-sm);
+    }
+
+    &:disabled {
+      cursor: default;
+    }
+  }
+
+  &__divider {
+    width: 100%;
+    max-width: 560px;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--color-border),
+      transparent
+    );
+    margin-top: var(--space-4);
+  }
+}

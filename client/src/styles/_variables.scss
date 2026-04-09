@@ -1,0 +1,62 @@
+// ─── Color Tokens ────────────────────────────────────────────────────────────
+// All colors are warm (590–750nm) to minimize melatonin suppression
+
+:root {
+  --color-bg-deep:      #060306;
+  --color-bg-surface:   #0d060a;
+  --color-bg-elevated:  #160b10;
+
+  --color-accent-amber: #c4611a;
+  --color-accent-red:   #8b2515;
+  --color-accent-glow:  rgba(196, 97, 26, 0.15);
+
+  --color-text-primary: #f0c9a0;
+  --color-text-muted:   #a07858;
+  --color-text-dim:     #5a3d2a;
+
+  --color-border:       rgba(196, 97, 26, 0.2);
+
+  // ─── Typography ──────────────────────────────────────────────────────────
+  --font-display:  'Cormorant Garamond', Georgia, serif;
+  --font-ui:       'DM Sans', system-ui, sans-serif;
+
+  --font-size-sm:  1rem;       // 16px
+  --font-size-md:  1.25rem;    // 20px
+  --font-size-lg:  1.5rem;     // 24px
+  --font-size-xl:  1.875rem;   // 30px
+
+  --line-height-story: 1.85;
+  --line-height-ui:    1.5;
+
+  // ─── Spacing (4pt base grid) ──────────────────────────────────────────────
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  // ─── Radius ───────────────────────────────────────────────────────────────
+  --radius-sm:   8px;
+  --radius-md:   12px;
+  --radius-full: 9999px;
+
+  // ─── Shadows (warm amber only) ────────────────────────────────────────────
+  --shadow-glow-sm: 0 0 12px rgba(196, 97, 26, 0.15);
+  --shadow-glow-md: 0 0 32px rgba(196, 97, 26, 0.2);
+
+  // ─── Motion ───────────────────────────────────────────────────────────────
+  // Restful: all transitions breathe slowly
+  --duration-fast:   600ms;
+  --duration-medium: 1200ms;
+  --duration-slow:   2400ms;
+  --ease-breathe:    cubic-bezier(0.4, 0, 0.2, 1);
+
+  // ─── Screen dimming ───────────────────────────────────────────────────────
+  --brightness-full: 1;
+  --brightness-dim:  0.2;
+}

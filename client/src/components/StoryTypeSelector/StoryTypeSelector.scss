@@ -1,0 +1,171 @@
+@use '../../styles/mixins' as mix;
+
+.theme-selector {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+
+  @include mix.tablet {
+    max-width: 560px;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-2);
+    width: 100%;
+  }
+
+  // ─── Footer hint ───────────────────────────────────────────────────────────
+  &__footer {
+    height: 1.2em; // reserve space so layout doesn't shift
+    display: flex;
+    align-items: center;
+  }
+
+  &__prompt,
+  &__single,
+  &__blend {
+    font-family: var(--font-ui);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-align: center;
+    animation: hintIn var(--duration-fast) var(--ease-breathe);
+  }
+
+  &__prompt {
+    color: var(--color-text-dim);
+  }
+
+  &__single {
+    color: var(--color-text-dim);
+    font-style: italic;
+    letter-spacing: 0.04em;
+  }
+
+  &__blend {
+    color: var(--color-accent-amber);
+  }
+}
+
+// ─── Tile ─────────────────────────────────────────────────────────────────────
+
+.theme-tile {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-2) var(--space-4);
+  background-color: var(--color-bg-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  min-height: 100px;
+  transition:
+    background-color var(--duration-medium) var(--ease-breathe),
+    border-color     var(--duration-medium) var(--ease-breathe),
+    box-shadow       var(--duration-medium) var(--ease-breathe);
+
+  &:hover {
+    background-color: var(--color-bg-elevated);
+    border-color: rgba(196, 97, 26, 0.35);
+  }
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &.is-selected {
+    background-color: var(--color-bg-elevated);
+    border-color: var(--color-accent-amber);
+    box-shadow:
+      0 0 0 1px rgba(196, 97, 26, 0.15),
+      0 0 20px rgba(196, 97, 26, 0.12);
+  }
+
+  // ─── Selection order badge ────────────────────────────────────────────────
+  &__badge {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background-color: var(--color-accent-amber);
+    color: var(--color-bg-deep);
+    font-family: var(--font-ui);
+    font-size: 0.6rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: badgeIn 200ms var(--ease-breathe);
+  }
+
+  // ─── Emoji icon ───────────────────────────────────────────────────────────
+  &__icon {
+    font-size: 1.75rem;
+    line-height: 1;
+    transition: transform var(--duration-medium) var(--ease-breathe);
+
+    .theme-tile.is-selected & {
+      transform: scale(1.15);
+    }
+  }
+
+  // ─── Label ────────────────────────────────────────────────────────────────
+  &__label {
+    font-family: var(--font-ui);
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    transition: color var(--duration-fast) var(--ease-breathe);
+
+    .theme-tile.is-selected & {
+      color: var(--color-accent-amber);
+    }
+  }
+
+  // ─── Mood descriptor ──────────────────────────────────────────────────────
+  &__mood {
+    font-family: var(--font-ui);
+    font-size: 0.58rem;
+    letter-spacing: 0.04em;
+    color: var(--color-text-dim);
+    opacity: 0;
+    transform: translateY(2px);
+    transition:
+      opacity  var(--duration-medium) var(--ease-breathe),
+      color    var(--duration-fast)   var(--ease-breathe),
+      transform var(--duration-medium) var(--ease-breathe);
+
+    // Show on hover or selection
+    .theme-tile:hover &,
+    .theme-tile.is-selected & {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .theme-tile.is-selected & {
+      color: rgba(196, 97, 26, 0.6);
+    }
+  }
+}
+
+// ─── Animations ───────────────────────────────────────────────────────────────
+
+@keyframes hintIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+@keyframes badgeIn {
+  from { opacity: 0; transform: scale(0.5); }
+  to   { opacity: 1; transform: scale(1);   }
+}

@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id // Clerk user ID
+  createdAt DateTime  @default(now())
+  settings  Settings?
+  sessions  Session[]
+}
+
+model Settings {
+  id            String  @id @default(cuid())
+  userId        String  @unique
+  musicMuted    Boolean @default(false)
+  font          String  @default("Cormorant Garamond")
+  fontSize      String  @default("md")
+  bionicReading Boolean @default(false)
+  user          User    @relation(fields: [userId], references: [id])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  userId       String
+  themes       String[]
+  customPrompt String?
+  story        String
+  provider     String?
+  createdAt    DateTime @default(now())
+  user         User     @relation(fields: [userId], references: [id])
+}

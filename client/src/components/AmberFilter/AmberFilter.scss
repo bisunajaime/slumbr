@@ -1,0 +1,11 @@
+// Full-page dark overlay that dims the screen progressively during reading.
+// Opacity is driven by JS (AmberFilter.tsx) — this just provides the base styles.
+.amber-filter {
+  position: fixed;
+  inset: 0;
+  background-color: #000;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 100;
+  transition: opacity var(--duration-slow) var(--ease-breathe);
+}
