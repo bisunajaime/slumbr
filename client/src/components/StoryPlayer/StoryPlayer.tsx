@@ -56,30 +56,12 @@ export function StoryPlayer() {
       {title && <h1 className="story-player__title">{title}</h1>}
 
       <div className="story-player__body" style={bodyStyle}>
-        {paragraphs.map((p, i) => {
-          const isLast = i === paragraphs.length - 1;
-          if (bionicReading) {
-            return (
-              <p
-                key={i}
-                className="story-player__paragraph"
-                dangerouslySetInnerHTML={{ __html: bionicEncode(p) }}
-              />
-            );
-          }
-          return (
-            <p key={i} className="story-player__paragraph">
-              {p}
-              {isLast && status === 'streaming' && (
-                <span className="story-player__cursor" aria-hidden />
-              )}
-            </p>
-          );
-        })}
+        {paragraphs.map((p, i) => (
+          bionicReading
+            ? <p key={i} className="story-player__paragraph" dangerouslySetInnerHTML={{ __html: bionicEncode(p) }} />
+            : <p key={i} className="story-player__paragraph">{p}</p>
+        ))}
 
-        {bionicReading && status === 'streaming' && (
-          <span className="story-player__cursor" aria-hidden />
-        )}
 
         {status === 'done' && (
           <>
