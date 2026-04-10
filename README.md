@@ -1,6 +1,8 @@
 # slumbr
 
-A sleep story web app that generates AI-powered bedtime stories. Pick a theme, optionally add a detail, and let the story carry you to sleep. The entire experience is designed to minimise cognitive load — warm colours, slow animations, ambient music, and a screen that gradually dims as you read.
+I built this because I couldn't sleep. I found that reading stories before bed was one of the few things that actually helped me drift off — something about following a quiet narrative slows my thoughts down enough to let sleep in. The problem was finding the right kind of story: calm, unhurried, with no cliffhangers or tension. So I built a generator that creates exactly that, on demand.
+
+slumbr is a web app that generates AI-powered bedtime stories. Pick a theme, optionally add a detail, and let the story carry you to sleep. The entire experience is designed to minimise cognitive load — warm colours, slow animations, ambient music, and a screen that gradually dims as you read.
 
 **Core UX principle:** 2 taps from app open to a generated story.
 
