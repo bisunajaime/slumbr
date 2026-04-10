@@ -4,7 +4,13 @@ import { StoryTypeSelector } from '../components/StoryTypeSelector/StoryTypeSele
 import { StoryHistory } from '../components/StoryHistory/StoryHistory';
 import { useStoryStore } from '../store/useStoryStore';
 import { useStoryActions } from '../hooks/useStoryActions';
-import { type StoryPov } from '../../../shared/src/schemas/story';
+import { type StoryLength, type StoryPov } from '../../../shared/src/schemas/story';
+
+const LENGTH_OPTIONS: { value: StoryLength; label: string; readTime: string }[] = [
+  { value: 'short',  label: 'Short',  readTime: '~4 min' },
+  { value: 'medium', label: 'Medium', readTime: '~8 min' },
+  { value: 'long',   label: 'Long',   readTime: '~12 min' },
+];
 
 const POV_OPTIONS: { value: StoryPov; label: string; description: string; example: string }[] = [
   {
@@ -57,13 +63,16 @@ function useCyclingPlaceholder(items: string[], interval = 3500) {
 }
 
 export function Home() {
-  const { selectedThemes, pov, withCharacter, withDialogue, customPrompt, status, setCustomPrompt, setPov, toggleCharacter, toggleDialogue } = useStoryStore();
+  const { selectedThemes, pov, withCharacter, withDialogue, storyLength, customPrompt, status, setCustomPrompt, setPov, toggleCharacter, toggleDialogue, setStoryLength } = useStoryStore();
   const { generate } = useStoryActions();
   const canGenerate = selectedThemes.length > 0 && status === 'idle';
+  const isLoading = status === 'loading';
+
+  const currentLength = LENGTH_OPTIONS.find((o) => o.value === storyLength) ?? LENGTH_OPTIONS[1]!;
 
   const handleGenerate = () => {
     if (selectedThemes.length === 0) return;
-    generate(selectedThemes, pov, withCharacter, withDialogue, customPrompt);
+    generate(selectedThemes, pov, withCharacter, withDialogue, storyLength, customPrompt);
   };
 
   const placeholder = useCyclingPlaceholder(PROMPT_EXAMPLES);
@@ -117,6 +126,23 @@ export function Home() {
         </div>
 
         <div className="home__extras-row">
+          <span className="home__extras-label">length</span>
+          <div className="home__length-pills">
+            {LENGTH_OPTIONS.map(({ value, label }) => (
+              <button
+                key={value}
+                className={`home__length-pill ${storyLength === value ? 'is-active' : ''}`}
+                onClick={() => setStoryLength(value)}
+                aria-pressed={storyLength === value}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <span className="home__extras-hint home__extras-hint--amber">{currentLength.readTime}</span>
+        </div>
+
+        <div className="home__extras-row">
           <span className="home__extras-label">dialogue</span>
           <button
             className={`home__extras-toggle ${withDialogue ? 'is-active' : ''}`}
@@ -150,12 +176,15 @@ export function Home() {
       </div>
 
       <button
-        className={`home__generate ${canGenerate ? 'is-ready' : ''}`}
+        className={`home__generate ${canGenerate ? 'is-ready' : ''} ${isLoading ? 'is-loading' : ''}`}
         onClick={handleGenerate}
-        disabled={!canGenerate}
-        aria-label="Generate story"
+        disabled={!canGenerate || isLoading}
+        aria-label={isLoading ? 'Generating story…' : 'Generate story'}
       >
-        {status === 'idle' ? 'Begin' : '...'}
+        {isLoading
+          ? <span className="home__generate-dots"><span /><span /><span /></span>
+          : 'Begin'
+        }
       </button>
 
       <div className="home__divider" />

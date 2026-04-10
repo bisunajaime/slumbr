@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import './StoryPlayer.scss';
-import { RotateCcw, Sparkles, Bookmark, BookmarkCheck } from 'lucide-react';
+import { RotateCcw, Sparkles, Bookmark, BookmarkCheck, BookOpen } from 'lucide-react';
 import { useStoryStore } from '../../store/useStoryStore';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useAutoHide } from '../../hooks/useAutoHide';
@@ -33,9 +33,10 @@ function parseStory(raw: string): { title: string; paragraphs: string[] } {
 }
 
 export function StoryPlayer() {
-  const { storyText, status, reset, isFromHistory, selectedThemes, pov, withCharacter, withDialogue, customPrompt, provider } = useStoryStore();
+  const { storyText, status, reset, isFromHistory, selectedThemes, pov, withCharacter, withDialogue, storyLength, customPrompt, provider } = useStoryStore();
+  const isLoading = status === 'loading';
   const { font, fontSize, bionicReading } = useSettingsStore();
-  const { generate } = useStoryActions();
+  const { generate, continueStory } = useStoryActions();
   const { saveStatus, save } = useSaveSession();
   const scrollRef = useRef<HTMLDivElement>(null);
   const controlsVisible = useAutoHide(10_000);
@@ -96,49 +97,71 @@ export function StoryPlayer() {
         )}
       </div>
 
-      {status === 'done' && (
+      {(status === 'done' || isLoading) && (
         <div className={`story-player__end ${controlsVisible ? '' : 'is-hidden'}`}>
 
-          {/* Primary: save — most important action after finishing a story */}
-          {!isFromHistory && (
-            <button
-              className={`story-player__btn story-player__btn--primary ${isSaved ? 'is-saved' : ''} ${saveStatus === 'error' ? 'is-error' : ''}`}
-              onClick={() => !isSaved && save(selectedThemes, storyText, customPrompt, provider)}
-              disabled={saveStatus === 'saving' || isSaved}
-              aria-label={isSaved ? 'Story saved' : 'Save this story'}
-            >
-              {isSaved
-                ? <><BookmarkCheck size={16} strokeWidth={1.5} /> Saved</>
-                : saveStatus === 'saving'
-                  ? <><Bookmark size={16} strokeWidth={1.5} /> Saving…</>
-                  : saveStatus === 'error'
-                    ? <><Bookmark size={16} strokeWidth={1.5} /> Save failed — tap to retry</>
-                    : <><Bookmark size={16} strokeWidth={1.5} /> Save story</>
-              }
-            </button>
-          )}
+          {isLoading ? (
+            <div className="story-player__loading-dots" aria-label="Generating…">
+              <span /><span /><span />
+            </div>
+          ) : (
+            <>
+              {/* Primary: save — most important action after finishing a story */}
+              {!isFromHistory && (
+                <button
+                  className={`story-player__btn story-player__btn--primary ${isSaved ? 'is-saved' : ''} ${saveStatus === 'error' ? 'is-error' : ''}`}
+                  onClick={() => !isSaved && save(selectedThemes, storyText, customPrompt, provider)}
+                  disabled={saveStatus === 'saving' || isSaved}
+                  aria-label={isSaved ? 'Story saved' : 'Save this story'}
+                >
+                  {isSaved
+                    ? <><BookmarkCheck size={16} strokeWidth={1.5} /> Saved</>
+                    : saveStatus === 'saving'
+                      ? <><Bookmark size={16} strokeWidth={1.5} /> Saving…</>
+                      : saveStatus === 'error'
+                        ? <><Bookmark size={16} strokeWidth={1.5} /> Save failed — tap to retry</>
+                        : <><Bookmark size={16} strokeWidth={1.5} /> Save story</>
+                  }
+                </button>
+              )}
 
-          {/* Secondary actions row */}
-          <div className="story-player__btn-row">
-            {!isFromHistory && (
-              <button
-                className="story-player__btn story-player__btn--secondary"
-                onClick={() => generate(selectedThemes, pov, withCharacter, withDialogue, customPrompt)}
-                aria-label="Generate another story with the same settings"
-              >
-                <Sparkles size={14} strokeWidth={1.5} />
-                Generate again
-              </button>
-            )}
-            <button
-              className="story-player__btn story-player__btn--ghost"
-              onClick={reset}
-              aria-label="Start a new story"
-            >
-              <RotateCcw size={14} strokeWidth={1.5} />
-              New story
-            </button>
-          </div>
+              {/* Secondary actions row */}
+              <div className="story-player__btn-row">
+                {!isFromHistory && (
+                  <button
+                    className="story-player__btn story-player__btn--secondary"
+                    onClick={() => {
+                      const paras = storyText.split(/\n\n+/).filter(Boolean);
+                      const context = paras.slice(-3).join('\n\n');
+                      continueStory(selectedThemes, pov, withCharacter, withDialogue, storyLength, context, customPrompt);
+                    }}
+                    aria-label="Continue the story"
+                  >
+                    <BookOpen size={14} strokeWidth={1.5} />
+                    Continue
+                  </button>
+                )}
+                {!isFromHistory && (
+                  <button
+                    className="story-player__btn story-player__btn--secondary"
+                    onClick={() => generate(selectedThemes, pov, withCharacter, withDialogue, storyLength, customPrompt)}
+                    aria-label="Generate another story with the same settings"
+                  >
+                    <Sparkles size={14} strokeWidth={1.5} />
+                    Generate again
+                  </button>
+                )}
+                <button
+                  className="story-player__btn story-player__btn--ghost"
+                  onClick={reset}
+                  aria-label="Start a new story"
+                >
+                  <RotateCcw size={14} strokeWidth={1.5} />
+                  New story
+                </button>
+              </div>
+            </>
+          )}
 
         </div>
       )}

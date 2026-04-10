@@ -20,7 +20,8 @@ export function AmbientPlayer() {
   const audioRef    = useRef<HTMLAudioElement | null>(null);
   const playlistRef = useRef<string[]>([]);
   const indexRef    = useRef(0);
-  const musicMuted  = useSettingsStore((s) => s.musicMuted);
+  const musicMuted   = useSettingsStore((s) => s.musicMuted);
+  const musicVolume  = useSettingsStore((s) => s.musicVolume);
 
   useEffect(() => {
     if (audioRef.current) return;
@@ -33,7 +34,7 @@ export function AmbientPlayer() {
     indexRef.current = startIndex;
 
     const audio = new Audio(playlist[startIndex]);
-    audio.volume = 0.35;
+    audio.volume = useSettingsStore.getState().musicVolume;
     audio.preload = 'auto';
     audioRef.current = audio;
 
@@ -63,6 +64,10 @@ export function AmbientPlayer() {
       audio.play().catch(() => {});
     }
   }, [musicMuted]);
+
+  useEffect(() => {
+    if (audioRef.current) audioRef.current.volume = musicVolume;
+  }, [musicVolume]);
 
   // Resume after first user gesture if autoplay was blocked
   useEffect(() => {

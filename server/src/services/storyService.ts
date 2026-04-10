@@ -1,7 +1,7 @@
 import Groq from 'groq-sdk';
 import { OpenRouter } from '@openrouter/sdk';
 import { env } from '../config/env';
-import { StoryPov, StoryTheme } from '@slumbr/shared';
+import { StoryLength, StoryPov, StoryTheme } from '@slumbr/shared';
 
 const groq = new Groq({ apiKey: env.GROQ_API_KEY });
 
@@ -84,7 +84,19 @@ const POV_INSTRUCTIONS: Record<StoryPov, string> = {
   third: 'Third-person, present tense, using they/them — "they notice...", "they feel...", "they breathe..." Follow a single character softly from the outside.',
 };
 
-function buildSystemPrompt(pov: StoryPov, withCharacter: boolean, withDialogue: boolean): string {
+const LENGTH_CONFIG: Record<StoryLength, { paragraphs: string; maxTokens: number }> = {
+  short:  { paragraphs: '6–8',   maxTokens: 1500 },
+  medium: { paragraphs: '10–14', maxTokens: 3500 },
+  long:   { paragraphs: '16–20', maxTokens: 5500 },
+};
+
+function buildSystemPrompt(
+  pov: StoryPov,
+  withCharacter: boolean,
+  withDialogue: boolean,
+  storyLength: StoryLength,
+  isContinuation: boolean,
+): string {
   const povInstruction = withCharacter
     ? 'Third-person, present tense. The story follows a named character you invent. Give them a fitting name in the first paragraph and stay with them throughout — "Mira notices...", "He settles...", etc. The listener watches, not inhabits.'
     : POV_INSTRUCTIONS[pov];
@@ -93,12 +105,30 @@ function buildSystemPrompt(pov: StoryPov, withCharacter: boolean, withDialogue: 
     ? `\n- Include natural, back-and-forth conversation between characters throughout the story — full exchanges, not isolated lines. Dialogue should feel like a real, gentle conversation: one character speaks, the other responds, and this can continue for several turns. Keep it slow, warm, and unhurried. Use standard quotation marks. Dialogue must never introduce conflict, urgency, or unresolved tension — only comfort, observation, and quiet connection.`
     : '';
 
+  const { paragraphs } = LENGTH_CONFIG[storyLength];
+
+  if (isContinuation) {
+    return `You are continuing a sleep story that was already started. Do NOT write a title — pick up exactly where the story left off and continue seamlessly.
+
+Format:
+- Do NOT write a title or heading. Start immediately with the next paragraph of the story.
+- Write ${paragraphs} more paragraphs, separated by blank lines.
+
+Rules you must never break:
+- No conflict, no tension, no unresolved questions
+- No sudden movements, loud events, or surprises
+- Sentences get progressively longer as the story develops
+- Point of view: ${povInstruction}${dialogueInstruction}
+- The final paragraph must reach a natural, complete resting point — trailing off into pure sensation
+- Always write the full continuation. Never stop mid-paragraph or mid-sentence.`;
+  }
+
   return `You are a sleep story narrator. Your only purpose is to help the listener fall asleep.
 
 Format:
 - First line: a short, poetic title (3–6 words). Nothing else on that line.
 - Then a blank line.
-- Then the story body, broken into paragraphs separated by blank lines (10–14 paragraphs).
+- Then the story body, broken into paragraphs separated by blank lines (${paragraphs} paragraphs).
 
 Rules you must never break:
 - No conflict, no tension, no unresolved questions
@@ -146,13 +176,21 @@ export async function generateStory(
   pov: StoryPov,
   withCharacter: boolean,
   withDialogue: boolean,
+  storyLength: StoryLength,
   customPrompt?: string,
+  continuationContext?: string,
 ): Promise<{ stream: ReadableStream<string>; provider: string }> {
+  const isContinuation = !!continuationContext;
   const setting = buildSettingDescription(themes);
   const extra = customPrompt ? `\n\nAdditional direction from the listener: ${customPrompt}` : '';
+  const userContent = isContinuation
+    ? `The story so far ended with:\n\n${continuationContext}\n\nContinue the story now — no title, just the next paragraphs flowing naturally from where it left off.`
+    : `Setting: ${setting}${extra}\n\nWrite the complete sleep story now — title first, then all paragraphs through to a gentle, finished ending.`;
+
+  const { maxTokens } = LENGTH_CONFIG[storyLength];
   const messages = [
-    { role: 'system' as const, content: buildSystemPrompt(pov, withCharacter, withDialogue) },
-    { role: 'user' as const, content: `Setting: ${setting}${extra}\n\nWrite the complete sleep story now — title first, then all paragraphs through to a gentle, finished ending.` },
+    { role: 'system' as const, content: buildSystemPrompt(pov, withCharacter, withDialogue, storyLength, isContinuation) },
+    { role: 'user' as const, content: userContent },
   ];
 
   // ── Primary: OpenRouter / Gemini ─────────────────────────────────────────
@@ -165,7 +203,7 @@ export async function generateStory(
           model: env.FALLBACK_MODEL ?? 'google/gemini-2.0-flash-001',
           messages,
           stream: true as const,
-          maxTokens: 3500,
+          maxTokens: maxTokens,
           temperature: 0.8,
         },
       });
@@ -182,7 +220,7 @@ export async function generateStory(
       model: 'llama-3.3-70b-versatile',
       messages,
       stream: true,
-      max_tokens: 3500,
+      max_tokens: maxTokens,
       temperature: 0.8,
     });
     return { stream: await streamFromIterable(stream), provider: 'groq' };
@@ -196,7 +234,7 @@ export async function generateStory(
     model: 'llama-3.1-8b-instant',
     messages,
     stream: true,
-    max_tokens: 3500,
+    max_tokens: maxTokens,
     temperature: 0.8,
   });
   return { stream: await streamFromIterable(stream), provider: 'groq-fallback' };

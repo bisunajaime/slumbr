@@ -13,12 +13,16 @@ export const TYPING_SPEED_CONFIG: Record<TypingSpeed, { chars: number; delay: nu
 
 interface SettingsState {
   musicMuted: boolean;
+  musicVolume: number;
+  sleepTimerMinutes: number; // 0 = off
   font: FontOption;
   fontSize: FontSizeOption;
   bionicReading: boolean;
   typingEnabled: boolean;
   typingSpeed: TypingSpeed;
   setMusicMuted: (muted: boolean) => void;
+  setMusicVolume: (volume: number) => void;
+  setSleepTimerMinutes: (minutes: number) => void;
   setFont: (font: FontOption) => void;
   setFontSize: (size: FontSizeOption) => void;
   setBionicReading: (enabled: boolean) => void;
@@ -30,12 +34,16 @@ export const useSettingsStore = create<SettingsState>()(
   persist(
     (set) => ({
       musicMuted: false,
+      musicVolume: 0.35,
+      sleepTimerMinutes: 0,
       font: 'Cormorant Garamond',
       fontSize: 'md',
       bionicReading: false,
       typingEnabled: true,
       typingSpeed: 'normal',
       setMusicMuted: (musicMuted) => set({ musicMuted }),
+      setMusicVolume: (musicVolume) => set({ musicVolume }),
+      setSleepTimerMinutes: (sleepTimerMinutes) => set({ sleepTimerMinutes }),
       setFont: (font) => set({ font }),
       setFontSize: (fontSize) => set({ fontSize }),
       setBionicReading: (bionicReading) => set({ bionicReading }),

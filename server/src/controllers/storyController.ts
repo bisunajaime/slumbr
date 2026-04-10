@@ -8,7 +8,7 @@ export async function generate(req: Request, res: Response, next: NextFunction):
     const { userId } = getAuth(req);
     const input = GenerateStorySchema.parse(req.body);
 
-    const { stream, provider } = await generateStory(input.themes, input.pov, input.withCharacter, input.withDialogue, input.customPrompt);
+    const { stream, provider } = await generateStory(input.themes, input.pov, input.withCharacter, input.withDialogue, input.storyLength, input.customPrompt, input.continuationContext);
 
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');

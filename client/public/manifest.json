@@ -1,0 +1,24 @@
+{
+  "name": "slumbr",
+  "short_name": "slumbr",
+  "description": "A story to fall asleep to.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#060306",
+  "theme_color": "#060306",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

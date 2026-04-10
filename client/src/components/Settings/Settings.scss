@@ -60,7 +60,7 @@
   flex-direction: column;
 
   @include mix.tablet {
-    max-width: 420px;
+    max-width: 580px;
     max-height: none;
     border-radius: var(--radius-md);
     border: 1px solid var(--color-border);
@@ -130,6 +130,28 @@
     @include mix.tablet {
       overflow-y: visible;
       padding-bottom: 0;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: var(--space-8);
+      align-items: start;
+    }
+  }
+
+  &__col {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+  }
+
+  &__full {
+    @include mix.tablet {
+      grid-column: 1 / -1;
+    }
+  }
+
+  &__footer {
+    @include mix.tablet {
+      grid-column: 1 / -1;
     }
   }
 
@@ -286,8 +308,12 @@
 
 .settings-font-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--space-2);
+
+  @include mix.tablet {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .settings-font-card {
@@ -380,6 +406,92 @@
     background-color: rgba(196, 97, 26, 0.06);
     color: var(--color-accent-amber);
     box-shadow: var(--shadow-glow-sm);
+  }
+}
+
+// ─── Music row (toggle + volume inline) ──────────────────────────────────────
+
+.settings-music-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: 44px;
+}
+
+// ─── Volume slider ───────────────────────────────────────────────────────────
+
+.settings-volume-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+
+  &.is-disabled {
+    opacity: 0.3;
+    pointer-events: none;
+    transition: opacity var(--duration-medium) var(--ease-breathe);
+  }
+}
+
+.settings-volume-icon {
+  color: var(--color-text-dim);
+  flex-shrink: 0;
+}
+
+.settings-volume-pct {
+  font-family: var(--font-ui);
+  font-size: 0.7rem;
+  color: var(--color-text-dim);
+  width: 2.5rem;
+  text-align: right;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.settings-volume-slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  border-radius: var(--radius-full);
+  // Fill track up to current value using CSS custom property
+  background: linear-gradient(
+    to right,
+    var(--color-accent-amber) 0%,
+    var(--color-accent-amber) var(--volume-pct, 35%),
+    var(--color-border) var(--volume-pct, 35%),
+    var(--color-border) 100%
+  );
+  outline: none;
+  cursor: pointer;
+
+  &::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: var(--color-accent-amber);
+    box-shadow: 0 0 6px rgba(196, 97, 26, 0.5);
+    cursor: pointer;
+    transition: transform var(--duration-fast) var(--ease-breathe);
+
+    &:hover {
+      transform: scale(1.2);
+    }
+  }
+
+  &::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background-color: var(--color-accent-amber);
+    border: none;
+    cursor: pointer;
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
   }
 }
 

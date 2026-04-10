@@ -1,7 +1,7 @@
 import { useAuth } from '@clerk/clerk-react';
 import { useStoryStore } from '../store/useStoryStore';
 import { useSettingsStore, TYPING_SPEED_CONFIG } from '../store/useSettingsStore';
-import type { StoryPov, StoryTheme } from '../../../shared/src/schemas/story';
+import type { StoryLength, StoryPov, StoryTheme } from '../../../shared/src/schemas/story';
 
 const API_BASE = import.meta.env.VITE_API_URL ?? 'http://localhost:3001/api/v1';
 
@@ -51,11 +51,12 @@ function createTypewriterDrainer(
   };
 }
 
-async function consumeSSE(res: Response): Promise<void> {
+async function consumeSSE(res: Response, onStart: () => void): Promise<void> {
   const { appendChunk, finishStream, setProvider, setError } = useStoryStore.getState();
   const { typingEnabled, typingSpeed } = useSettingsStore.getState();
   if (!res.ok || !res.body) { setError(); return; }
 
+  onStart();
   const { chars, delay } = TYPING_SPEED_CONFIG[typingSpeed];
   const drainer = typingEnabled
     ? createTypewriterDrainer(appendChunk, finishStream, chars, delay)
@@ -96,23 +97,50 @@ async function consumeSSE(res: Response): Promise<void> {
 export function useStoryActions() {
   const { getToken } = useAuth();
 
-  const generate = async (themes: StoryTheme[], pov: StoryPov, withCharacter: boolean, withDialogue: boolean, customPrompt?: string) => {
+  const generate = async (
+    themes: StoryTheme[],
+    pov: StoryPov,
+    withCharacter: boolean,
+    withDialogue: boolean,
+    storyLength: StoryLength,
+    customPrompt?: string,
+  ) => {
+    useStoryStore.getState().setLoading();
     const token = await getToken();
-    useStoryStore.getState().startStream();
     try {
       const res = await fetch(`${API_BASE}/story/generate`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...await authHeaders(token),
-        },
-        body: JSON.stringify({ themes, pov, withCharacter, withDialogue, customPrompt: customPrompt || undefined }),
+        headers: { 'Content-Type': 'application/json', ...await authHeaders(token) },
+        body: JSON.stringify({ themes, pov, withCharacter, withDialogue, storyLength, customPrompt: customPrompt || undefined }),
       });
-      await consumeSSE(res);
+      await consumeSSE(res, () => useStoryStore.getState().startStream());
     } catch {
       useStoryStore.getState().setError();
     }
   };
 
-  return { generate };
+  const continueStory = async (
+    themes: StoryTheme[],
+    pov: StoryPov,
+    withCharacter: boolean,
+    withDialogue: boolean,
+    storyLength: StoryLength,
+    continuationContext: string,
+    customPrompt?: string,
+  ) => {
+    useStoryStore.getState().setLoading();
+    const token = await getToken();
+    try {
+      const res = await fetch(`${API_BASE}/story/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...await authHeaders(token) },
+        body: JSON.stringify({ themes, pov, withCharacter, withDialogue, storyLength, continuationContext, customPrompt: customPrompt || undefined }),
+      });
+      await consumeSSE(res, () => useStoryStore.getState().continueStream());
+    } catch {
+      useStoryStore.getState().setError();
+    }
+  };
+
+  return { generate, continueStory };
 }
