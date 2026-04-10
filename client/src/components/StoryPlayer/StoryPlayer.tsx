@@ -51,6 +51,17 @@ export function StoryPlayer() {
   const bodyStyle = { fontFamily: `'${font}', Georgia, serif`, fontSize: FONT_SIZE_MAP[fontSize] };
   const isSaved = saveStatus === 'saved';
 
+  // Fresh load — no text yet, show full-page spinner
+  if (isLoading && storyText.length === 0) {
+    return (
+      <div className="story-player story-player--loading" aria-label="Generating story…" aria-busy>
+        <div className="story-player__loading-dots">
+          <span /><span /><span />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="story-player" ref={scrollRef}>
       {title && <h1 className="story-player__title">{title}</h1>}

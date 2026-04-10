@@ -11,10 +11,7 @@ import { useStoryStore } from './store/useStoryStore';
 export default function App() {
   const { isLoaded, isSignedIn } = useAuth();
   const status = useStoryStore((s) => s.status);
-  const storyText = useStoryStore((s) => s.storyText);
-  // Stay in StoryPlayer during 'loading' only if there's already story content
-  // (Continue / Generate again). For a fresh Begin, stay on Home until streaming starts.
-  const isReading = status === 'streaming' || status === 'done' || (status === 'loading' && storyText.length > 0);
+  const isReading = status === 'loading' || status === 'streaming' || status === 'done';
 
   // Wait for Clerk to resolve auth state before rendering
   if (!isLoaded) return null;

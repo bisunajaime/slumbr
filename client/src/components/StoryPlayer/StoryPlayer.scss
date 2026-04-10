@@ -13,6 +13,12 @@
     margin: 0 auto;
   }
 
+  &--loading {
+    align-items: center;
+    justify-content: center;
+  }
+
+
   &__title {
     font-family: 'Cormorant Garamond', Georgia, serif;
     font-size: clamp(1.5rem, 5vw, 2.25rem);
